@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michaelinnian Perpetual Brotherhood 31st</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #06020c;
+            --accent-violet: #a855f7;
+            --light-violet: #c084fc;
+            --glow-violet: rgba(168, 85, 247, 0.35);
+            --glow-strong: rgba(168, 85, 247, 0.7);
+            --card-bg: rgba(18, 10, 32, 0.85);
+            --border-violet: rgba(168, 85, 247, 0.25);
+            --text-main: #f3e8ff;
+            --text-muted: #a78bfa;
+            --danger-red: #ef4444;
+            --insta-bg: #0f081d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.18) 0%, transparent 60%),
+                radial-gradient(circle at 100% 100%, rgba(126, 34, 206, 0.12) 0%, transparent 50%);
+        }
+
+        .glow-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, var(--glow-violet) 0%, transparent 70%);
+            filter: blur(100px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- AUTHENTICATION FLOW --- */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .screen {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 460px;
+            padding: 2.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-violet);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 20px var(--glow-violet);
+            transition: all 0.4s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .brand-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 0 12px var(--glow-strong);
+            margin-bottom: 0.4rem;
+        }
+
+        .brand-subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: rgba(5, 2, 10, 0.7);
+            border: 1px solid var(--border-violet);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent-violet);
+            box-shadow: 0 0 12px var(--glow-violet);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--glow-violet);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px var(--glow-strong);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+        }
+
+        .error-msg {
+            color: #f87171;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        .passcode-hint {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px dashed var(--border-violet);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* --- WELCOME ANIMATION OVERLAY --- */
+        #welcome-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #040108;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .welcome-text {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #fff, var(--light-violet), var(--accent-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px var(--glow-strong);
+            animation: pulseGlow 2s infinite alternate, zoomIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .welcome-subtext {
+            margin-top: 1rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.6); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulseGlow {
+            from { filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4)); }
+            to { filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.9)); }
+        }
+
+        /* --- HEADER & NAVIGATION --- */
+        #main-console {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .platform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 3rem;
+            background: rgba(12, 6, 24, 0.9);
+            border-bottom: 1px solid var(--border-violet);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-violet), #6b21a8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 0 12px var(--glow-violet);
+        }
+
+        .logo-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #fff;
+            background: rgba(168, 85, 247, 0.25);
+            box-shadow: 0 0 12px var(--glow-violet);
+        }
+
+        .user-profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 1.5rem;
+            border-left: 1px solid var(--border-violet);
+        }
+
+        .avatar-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #3b0764);
+            border: 2px solid var(--accent-violet);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-edit-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--accent-violet);
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            border: 1px solid #fff;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* --- DASHBOARD LAYOUT --- */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .module-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-violet);
+            border-radius: 14px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover, .module-card.active-card {
+            transform: translateY(-3px);
+            border-color: var(--accent-violet);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 18px var(--glow-violet);
+        }
+
+        .module-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .module-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* --- CONTENT PANEL --- */
+        .content-display-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-violet);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 400px;
+        }
+
+        .panel-section {
+            display: none;
+        }
+
+        .panel-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-violet);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* --- INSTAGRAM-STYLE FEED --- */
+        .insta-feed {
+            max-width: 580px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .insta-card {
+            background: var(--insta-bg);
+            border: 1px solid var(--border-violet);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .insta-header {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            gap: 12px;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+        }
+
+        .insta-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #6b21a8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .insta-author {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .insta-img {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .insta-actions {
+            padding: 0.8rem 1rem 0.4rem;
+            display: flex;
+            gap: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .action-icon:hover {
+            transform: scale(1.15);
+        }
+
+        .insta-likes {
+            padding: 0 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .insta-caption {
+            padding: 0 1rem;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+
+        .insta-caption .username {
+            font-weight: 700;
+            margin-right: 6px;
+        }
+
+        .insta-comments-list {
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.82rem;
+        }
+
+        .insta-comment-input-box {
+            display: flex;
+            border-top: 1px solid rgba(168, 85, 247, 0.15);
+        }
+
+        .insta-comment-input-box input {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .insta-comment-input-box button {
+            background: transparent;
+            border: none;
+            color: var(--accent-violet);
+            font-weight: 700;
+            padding: 0 1rem;
+            cursor: pointer;
+        }
+
+        /* --- MESSAGING CONSOLE --- */
+        .chat-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 1rem;
+            height: 480px;
+            background: rgba(10, 5, 20, 0.6);
+            border-radius: 12px;
+            border: 1px solid var(--border-violet);
+            overflow: hidden;
+        }
+
+        .chat-sidebar {
+            background: rgba(15, 8, 30, 0.8);
+            border-right: 1px solid var(--border-violet);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .chat-channel-btn {
+            padding: 0.75rem 1rem;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid var(--border-violet);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .chat-channel-btn.active, .chat-channel-btn:hover {
+            background: var(--accent-violet);
+            color: #fff;
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1rem;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            padding-right: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .msg-bubble {
+            max-width: 70%;
+            padding: 0.7rem 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .msg-bubble.me {
+            align-self: flex-end;
+            background: var(--accent-violet);
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg-bubble.other {
+            align-self: flex-start;
+            background: rgba(30, 18, 50, 0.9);
+            border: 1px solid var(--border-violet);
+            border-bottom-left-radius: 2px;
+        }
+
+        .msg-author {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--light-violet);
+            margin-bottom: 2px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* --- DATA TABLES --- */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th, .data-table td {
+            text-align: left;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border-violet);
+        }
+
+        .data-table th {
+            color: var(--light-violet);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .status-badge.active { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .status-badge.pending { background: rgba(234, 179, 8, 0.2); color: #fde047; }
+        .status-badge.visitor { background: rgba(168, 85, 247, 0.2); color: var(--light-violet); }
+
+        /* MODALS */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85);
+            z-index: 999;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-violet);
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 0 30px var(--glow-violet);
+        }
+
+        /* FB PROFILE STYLE DETAILS */
+        .profile-header-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-violet);
+        }
+
+        .profile-modal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #3b0764);
+            border: 3px solid var(--accent-violet);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .danger-zone {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .danger-zone-title {
+            color: #f87171;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-bg"></div>
+
+    <!-- WELCOME ANIMATION -->
+    <div id="welcome-animation" class="hidden">
+        <div class="welcome-text">WELCOME TO MPB31ST</div>
+        <div class="welcome-subtext">Michaelinnian Perpetual Brotherhood Portal</div>
+    </div>
+
+    <!-- AUTHENTICATION FLOW -->
+    <div class="auth-container" id="auth-flow">
+       
+        <!-- STEP 1: ENTER EMAIL -->
+        <div id="step-email-login" class="screen">
+            <h1 class="brand-title">Michaelinnian Perpetual</h1>
+            <p class="brand-subtitle">Brotherhood 31st Portal</p>
+           
+            <div class="form-group">
+                <label for="login-email">Email Address</label>
+                <input type="email" id="login-email" placeholder="name@domain.com" required>
+            </div>
+
+            <div id="login-error" class="error-msg"></div>
+            <button class="btn" onclick="handleEmailLookup()">CONTINUE</button>
+        </div>
+
+        <!-- NEW USER STEP 1: UNIVERSAL PASSCODE VERIFICATION -->
+        <div id="step-passcode" class="screen hidden">
+            <h1 class="brand-title">New Portal Gateway</h1>
+            <p class="brand-subtitle">First-time Activation</p>
+           
+            <div class="form-group">
+                <label for="passcode">Enter Universal Access Key</label>
+                <input type="password" id="passcode" placeholder="Enter Member or Visitor Passcode">
+            </div>
+            <div id="passcode-error" class="error-msg">Invalid passcode. Check key and try again.</div>
+            <button class="btn" onclick="verifyPasscode()">VERIFY GATEWAY</button>
+
+            <div class="passcode-hint">
+                🔑 <strong>Member Passcode:</strong> <code>MPB31ST-MEMBER</code><br>
+                👁️ <strong>Visitor Passcode:</strong> <code>MPB31ST-VISITOR</code>
+            </div>
+        </div>
+
+        <!-- NEW USER STEP 2: REGISTRATION DETAILS -->
+        <div id="step-details" class="screen hidden">
+            <h1 class="brand-title">Profile Setup</h1>
+            <p class="brand-subtitle" id="user-role-label">Register details</p>
+           
+            <form id="member-form" onsubmit="handleRegistration(event)">
+                <div class="form-group">
+                    <label for="user-name">Full Name</label>
+                    <input type="text" id="user-name" required placeholder="e.g. John Doe">
+                </div>
+
+                <!-- Member Specific Fields -->
+                <div id="member-fields">
+                    <div class="form-group">
+                        <label for="user-birthdate">Birthdate</label>
+                        <input type="date" id="user-birthdate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-family-code">Family Code</label>
+                        <input type="text" id="user-family-code" placeholder="e.g. 21F32" pattern="[A-Za-z0-9]+" required style="text-transform:uppercase;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">SAVE & LAUNCH PORTAL</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL FOR PROFILE & ACCOUNT MANAGEMENT (FB STYLE) -->
+    <div id="profile-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="profile-header-card">
+                <div class="profile-modal-avatar" id="profile-modal-avatar-display">M</div>
+                <h2 style="font-size:1.2rem; font-weight:700;" id="profile-modal-name">User Name</h2>
+                <span style="font-size:0.8rem; color:var(--text-muted);" id="profile-modal-email">user@email.com</span>
+                <span style="font-size:0.75rem; margin-top:0.2rem;" class="status-badge active" id="profile-modal-badge">Member</span>
+            </div>
+
+            <!-- PHOTO UPDATE -->
+            <div class="form-group">
+                <label>Update Profile Picture (Image URL)</label>
+                <input type="url" id="photo-url-input" placeholder="https://example.com/photo.jpg">
+            </div>
+
+            <div style="text-align:center; margin:0.3rem 0; color:var(--text-muted); font-size:0.75rem;">OR UPLOAD FILE</div>
+
+            <div class="form-group">
+                <input type="file" id="photo-file-input" accept="image/*">
+            </div>
+
+            <button class="btn" style="margin-top:0.5rem;" onclick="saveProfilePhoto()">Save Picture</button>
+
+            <!-- ACCOUNT DELETION (FB STYLE DANGER ZONE) -->
+            <div class="danger-zone">
+                <div class="danger-zone-title">Account Settings</div>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.8rem;">
+                    Once you delete your account, your profile data will be permanently removed from this browser.
+                </p>
+                <button class="btn btn-danger" onclick="deleteUserAccount()">Delete Account</button>
+            </div>
+
+            <button class="btn" style="background:rgba(255,255,255,0.1); margin-top:1rem;" onclick="closeProfileModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONSOLE -->
+    <div id="main-console" class="hidden">
+       
+        <!-- HEADER -->
+        <header class="platform-header">
+            <div class="header-logo" onclick="activateConsole('announcements')">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">MPB 31ST</div>
+            </div>
+
+            <nav class="header-nav">
+                <button class="nav-link active" id="nav-announcements" onclick="activateConsole('announcements')">Announcements</button>
+                <button class="nav-link" id="nav-memories" onclick="activateConsole('memories')">Memories</button>
+                <button class="nav-link" id="nav-schedules" onclick="activateConsole('schedules')">Schedules</button>
+                <button class="nav-link" id="nav-members" onclick="activateConsole('members')">Members</button>
+                <button class="nav-link" id="nav-messages" onclick="activateConsole('messages')">Messages</button>
+            </nav>
+
+            <div class="user-profile-badge">
+                <div class="avatar-container" onclick="openProfileModal()" title="Click to view profile & settings">
+                    <div class="avatar" id="user-avatar">M</div>
+                    <div class="avatar-edit-overlay">✏️</div>
+                </div>
+                <div style="display:flex; flex-direction:column; cursor:pointer;" onclick="openProfileModal()">
+                    <span style="font-size:0.85rem; font-weight:700;" id="display-user-name">Member</span>
+                    <span style="font-size:0.7rem; color:var(--text-muted);" id="display-user-role">Role: Member</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </header>
+
+        <div class="dashboard-container">
+
+            <!-- MODULE SELECTOR CARDS -->
+            <div class="modules-grid">
+                <div class="module-card active-card" id="card-announcements" onclick="activateConsole('announcements')">
+                    <div class="module-title">📢 Feed</div>
+                    <div class="module-desc">Instagram-style updates</div>
+                </div>
+                <div class="module-card" id="card-memories" onclick="activateConsole('memories')">
+                    <div class="module-title">🖼️ Memories</div>
+                    <div class="module-desc">Shared album photos</div>
+                </div>
+                <div class="module-card" id="card-schedules" onclick="activateConsole('schedules')">
+                    <div class="module-title">📅 Schedules</div>
+                    <div class="module-desc">Brotherhood calendar</div>
+                </div>
+                <div class="module-card" id="card-members" onclick="activateConsole('members')">
+                    <div class="module-title">👥 Directory</div>
+                    <div class="module-desc">Member accounts</div>
+                </div>
+                <div class="module-card" id="card-messages" onclick="activateConsole('messages')">
+                    <div class="module-title">💬 Messages</div>
+                    <div class="module-desc">Global & direct chat</div>
+                </div>
+            </div>
+
+            <!-- INDIVIDUAL CONSOLE PANELS -->
+            <div class="content-display-panel">
+               
+                <!-- CONSOLE 1: ANNOUNCEMENTS -->
+                <section id="announcements" class="panel-section active">
+                    <div class="section-header">
+                        <span>Announcements Feed</span>
+                        <button class="btn" id="create-post-btn" style="width:auto; padding:0.4rem 1rem; font-size:0.8rem;" onclick="togglePostCreator()">+ Create Post</button>
+                    </div>
+
+                    <div id="post-creator" class="hidden" style="margin-bottom:2rem; background:rgba(5,2,10,0.8); padding:1rem; border-radius:10px; border:1px solid var(--border-violet);">
+                        <textarea id="new-post-caption" rows="2" placeholder="Write caption..." style="margin-bottom:0.5rem;"></textarea>
+                        <input type="text" id="new-post-img" placeholder="Paste image URL (https://...)" style="margin-bottom:0.5rem;">
+                        <button class="btn" onclick="publishAnnouncement()">Publish to Feed</button>
+                    </div>
+
+                    <div class="insta-feed" id="insta-feed-container">
+                        <div class="insta-card">
+                            <div class="insta-header">
+                                <div class="insta-avatar">C</div>
+                                <div class="insta-author">Council Chair</div>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1000&q=80" class="insta-img" alt="Post">
+                            <div class="insta-actions">
+                                <span class="action-icon" onclick="toggleLike(this)">❤️</span>
+                                <span class="action-icon">💬</span>
+                            </div>
+                            <div class="insta-likes"><span class="like-count">34</span> likes</div>
+                            <div class="insta-caption">
+                                <span class="username">Council Chair</span>Welcome brothers & guests! Stay tuned for upcoming events.
+                            </div>
+                            <div class="insta-comments-list" id="comments-post-1">
+                                <div><span style="font-weight:700;">Bro Alex:</span> Glad to be here!</div>
+                            </div>
+                            <div class="insta-comment-input-box">
+                                <input type="text" placeholder="Add a comment..." onkeypress="handleInstaComment(event, 'comments-post-1')">
+                                <button onclick="addInstaComment('comments-post-1', this)">Post</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CONSOLE 2: MEMORIES -->
+                <section id="memories" class="panel-section">
+                    <div class="section-header">
+                        <span>Brotherhood Gallery</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+                        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" style="width:100%; border-radius:10px; border:1px solid var(--border-violet);" alt="Gallery 1">
+                        <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80" style="width:100%; border-radius:10px; border:1px solid var(--border-violet);" alt="Gallery 2">
+                    </div>
+                </section>
+
+                <!-- CONSOLE 3: SCHEDULES -->
+                <section id="schedules" class="panel-section">
+                    <div class="section-header">
+                        <span>Event Schedules</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Grand Annual Gathering 31st</td>
+                                <td>December 15, 2026</td>
+                                <td><span class="status-badge active">Confirmed</span></td>
+                            </tr>
+                            <tr>
+                                <td>Brotherhood Executive Meeting</td>
+                                <td>August 20, 2026</td>
+                                <td><span class="status-badge pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- CONSOLE 4: MEMBERS DIRECTORY -->
+                <section id="members" class="panel-section">
+                    <div class="section-header">
+                        <span>Directory</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Family Code</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-table-body">
+                            <tr>
+                                <td>Bro Admin</td>
+                                <td>admin@mpb31st.com</td>
+                                <td>00A00</td>
+                                <td><span class="status-badge active">Admin Member</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- CONSOLE 5: MESSAGES -->
+                <section id="messages" class="panel-section">
+                    <div class="section-header">
+                        <span>Messaging Center</span>
+                    </div>
+
+                    <div class="chat-layout">
+                        <div class="chat-sidebar">
+                            <button class="chat-channel-btn active" onclick="switchChatChannel('global', '🌐 Everyone Chat')">🌐 Everyone Chat</button>
+                            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem; text-transform:uppercase;">Private Messages</div>
+                            <div id="private-chats-list" style="display:flex; flex-direction:column; gap:0.5rem;">
+                                <button class="chat-channel-btn" onclick="switchChatChannel('admin', '🔒 Bro Admin')">Bro Admin</button>
+                            </div>
+                        </div>
+
+                        <div class="chat-main">
+                            <div style="font-size:0.95rem; font-weight:700; border-bottom:1px solid var(--border-violet); padding-bottom:0.5rem;" id="chat-title">
+                                🌐 Everyone Chat
+                            </div>
+
+                            <div class="chat-messages" id="chat-messages-box">
+                                <div class="msg-bubble other">
+                                    <div class="msg-author">Bro Admin</div>
+                                    Welcome! Select a member from the sidebar for direct messages.
+                                </div>
+                            </div>
+
+                            <div class="chat-input-row">
+                                <input type="text" id="chat-text-input" placeholder="Type a message..." onkeypress="handleChatSubmit(event)">
+                                <button class="btn" style="width:auto; padding:0 1.2rem;" onclick="sendChatMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // UNIVERSAL PASSCODES
+        const MEMBER_PASSCODE = "MPB31ST-MEMBER";
+        const VISITOR_PASSCODE = "MPB31ST-VISITOR";
+
+        let currentUser = null;
+        let detectedRole = "Member";
+        let activeEmail = "";
+
+        // Check if user exists based on entered email
+        function handleEmailLookup() {
+            const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+            const errBox = document.getElementById('login-error');
+
+            if (!emailInput) {
+                errBox.innerText = "Please enter your email.";
+                errBox.style.display = 'block';
+                return;
+            }
+
+            activeEmail = emailInput;
+            errBox.style.display = 'none';
+
+            const storedAccount = localStorage.getItem(`user_${activeEmail}`);
+
+            if (storedAccount) {
+                // RETURNING USER: Directly log in and open home portal
+                currentUser = JSON.parse(storedAccount);
+                launchPortal();
+            } else {
+                // NEW USER: Ask for Universal Access Key first
+                document.getElementById('step-email-login').classList.add('hidden');
+                document.getElementById('step-passcode').classList.remove('hidden');
+            }
+        }
+
+        // New User Step 1: Universal Passcode Verification
+        function verifyPasscode() {
+            const inputKey = document.getElementById('passcode').value.trim();
+            const error = document.getElementById('passcode-error');
+
+            if (inputKey === MEMBER_PASSCODE) {
+                detectedRole = "Member";
+                proceedToRegistration();
+            } else if (inputKey === VISITOR_PASSCODE) {
+                detectedRole = "Visitor";
+                proceedToRegistration();
+            } else {
+                error.style.display = 'block';
+            }
+        }
+
+        function proceedToRegistration() {
+            document.getElementById('passcode-error').style.display = 'none';
+            document.getElementById('step-passcode').classList.add('hidden');
+            document.getElementById('step-details').classList.remove('hidden');
+            document.getElementById('user-role-label').innerText = `Entering as ${detectedRole}`;
+
+            const memberFields = document.getElementById('member-fields');
+            const birthdateInput = document.getElementById('user-birthdate');
+            const familyCodeInput = document.getElementById('user-family-code');
+
+            if (detectedRole === 'Member') {
+                memberFields.style.display = 'block';
+                birthdateInput.required = true;
+                familyCodeInput.required = true;
+            } else {
+                memberFields.style.display = 'none';
+                birthdateInput.required = false;
+                familyCodeInput.required = false;
+            }
+        }
+
+        // New User Step 2: Save Profile Information
+        function handleRegistration(event) {
+            event.preventDefault();
+            const name = document.getElementById('user-name').value.trim();
+            const birthdate = document.getElementById('user-birthdate').value;
+            const familyCode = document.getElementById('user-family-code').value.trim().toUpperCase();
+
+            currentUser = {
+                name: name,
+                email: activeEmail,
+                role: detectedRole,
+                birthdate: birthdate || 'N/A',
+                familyCode: familyCode || 'N/A',
+                photo: ''
+            };
+
+            // Save user details to LocalStorage under their specific email key
+            localStorage.setItem(`user_${activeEmail}`, JSON.stringify(currentUser));
+            launchPortal();
+        }
+
+        function launchPortal() {
+            document.getElementById('auth-flow').classList.add('hidden');
+
+            const anim = document.getElementById('welcome-animation');
+            anim.classList.remove('hidden');
+
+            setTimeout(() => {
+                anim.classList.add('hidden');
+                document.getElementById('main-console').classList.remove('hidden');
+
+                document.getElementById('display-user-name').innerText = currentUser.name;
+                document.getElementById('display-user-role').innerText = `Role: ${currentUser.role}`;
+               
+                updateAvatarDisplay();
+
+                if (currentUser.role === 'Visitor') {
+                    document.getElementById('create-post-btn').style.display = 'none';
+                }
+
+                // Add User to Directory Table
+                const table = document.getElementById('members-table-body');
+                const existingRow = document.getElementById(`user-row-${currentUser.email.replace(/[^a-zA-Z0-9]/g, '')}`);
+                if (!existingRow) {
+                    const row = document.createElement('tr');
+                    row.id = `user-row-${currentUser.email.replace(/[^a-zA-Z0-9]/g, '')}`;
+                    const badgeClass = currentUser.role === 'Member' ? 'active' : 'visitor';
+                    row.innerHTML = `
+                        <td>${currentUser.name}</td>
+                        <td>${currentUser.email}</td>
+                        <td>${currentUser.familyCode || 'N/A'}</td>
+                        <td><span class="status-badge ${badgeClass}">${currentUser.role} (You)</span></td>
+                    `;
+                    table.appendChild(row);
+                }
+
+            }, 2500);
+        }
+
+        function updateAvatarDisplay() {
+            const avatarEl = document.getElementById('user-avatar');
+            const modalAvatarEl = document.getElementById('profile-modal-avatar-display');
+
+            if (currentUser.photo) {
+                avatarEl.style.backgroundImage = `url('${currentUser.photo}')`;
+                avatarEl.innerText = '';
+                modalAvatarEl.style.backgroundImage = `url('${currentUser.photo}')`;
+                modalAvatarEl.innerText = '';
+            } else {
+                avatarEl.style.backgroundImage = 'none';
+                avatarEl.innerText = currentUser.name.charAt(0).toUpperCase();
+                modalAvatarEl.style.backgroundImage = 'none';
+                modalAvatarEl.innerText = currentUser.name.charAt(0).toUpperCase();
+            }
+        }
+
+        function resetAuthFlow() {
+            document.getElementById('step-passcode').classList.add('hidden');
+            document.getElementById('step-details').classList.add('hidden');
+            document.getElementById('step-email-login').classList.remove('hidden');
+            document.getElementById('login-email').value = '';
+        }
+
+        /* --- PROFILE & ACCOUNT MANAGEMENT --- */
+        function openProfileModal() {
+            document.getElementById('profile-modal-name').innerText = currentUser.name;
+            document.getElementById('profile-modal-email').innerText = currentUser.email;
+           
+            const badge = document.getElementById('profile-modal-badge');
+            badge.innerText = currentUser.role;
+            badge.className = `status-badge ${currentUser.role === 'Member' ? 'active' : 'visitor'}`;
+
+            updateAvatarDisplay();
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+            document.getElementById('photo-url-input').value = '';
+            document.getElementById('photo-file-input').value = '';
+        }
+
+        function saveProfilePhoto() {
+            const urlInput = document.getElementById('photo-url-input').value.trim();
+            const fileInput = document.getElementById('photo-file-input').files[0];
+
+            if (fileInput) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUser.photo = e.target.result;
+                    persistAndApplyPhoto();
+                };
+                reader.readAsDataURL(fileInput);
+            } else if (urlInput) {
+                currentUser.photo = urlInput;
+                persistAndApplyPhoto();
+            } else {
+                closeProfileModal();
+            }
+        }
+
+        function persistAndApplyPhoto() {
+            localStorage.setItem(`user_${currentUser.email}`, JSON.stringify(currentUser));
+            updateAvatarDisplay();
+            closeProfileModal();
+        }
+
+        // DELETE ACCOUNT FUNCTIONALITY
+        function deleteUserAccount() {
+            const confirmDelete = confirm(`Are you sure you want to permanently delete the account for ${currentUser.email}? This action cannot be undone.`);
+           
+            if (confirmDelete) {
+                // 1. Remove from LocalStorage
+                localStorage.removeItem(`user_${currentUser.email}`);
+
+                // 2. Remove row from directory if rendered
+                const userRow = document.getElementById(`user-row-${currentUser.email.replace(/[^a-zA-Z0-9]/g, '')}`);
+                if (userRow) userRow.remove();
+
+                alert("Your account has been deleted.");
+
+                // 3. Close Modal & Reset to login screen
+                closeProfileModal();
+                currentUser = null;
+                logout();
+            }
+        }
+
+        function activateConsole(consoleId) {
+            document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(consoleId).classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${consoleId}`);
+            if(activeNav) activeNav.classList.add('active');
+
+            document.querySelectorAll('.module-card').forEach(c => c.classList.remove('active-card'));
+            const activeCard = document.getElementById(`card-${consoleId}`);
+            if(activeCard) activeCard.classList.add('active-card');
+        }
+
+        /* --- INSTAGRAM FEED --- */
+        function togglePostCreator() {
+            document.getElementById('post-creator').classList.toggle('hidden');
+        }
+
+        function publishAnnouncement() {
+            const caption = document.getElementById('new-post-caption').value.trim();
+            const imgUrl = document.getElementById('new-post-img').value.trim();
+
+            if (!caption && !imgUrl) return;
+
+            const feed = document.getElementById('insta-feed-container');
+            const postId = 'comments-' + Date.now();
+
+            const avatarStyle = currentUser.photo ? `style="background-image:url('${currentUser.photo}')"` : '';
+            const avatarContent = currentUser.photo ? '' : currentUser.name.charAt(0).toUpperCase();
+
+            const postCard = document.createElement('div');
+            postCard.className = 'insta-card';
+            postCard.innerHTML = `
+                <div class="insta-header">
+                    <div class="insta-avatar" ${avatarStyle}>${avatarContent}</div>
+                    <div class="insta-author">${currentUser.name}</div>
+                </div>
+                ${imgUrl ? `<img src="${imgUrl}" class="insta-img" alt="Post">` : ''}
+                <div class="insta-actions">
+                    <span class="action-icon" onclick="toggleLike(this)">❤️</span>
+                    <span class="action-icon">💬</span>
+                </div>
+                <div class="insta-likes"><span class="like-count">0</span> likes</div>
+                <div class="insta-caption">
+                    <span class="username">${currentUser.name}</span>${caption}
+                </div>
+                <div class="insta-comments-list" id="${postId}"></div>
+                <div class="insta-comment-input-box">
+                    <input type="text" placeholder="Add a comment..." onkeypress="handleInstaComment(event, '${postId}')">
+                    <button onclick="addInstaComment('${postId}', this)">Post</button>
+                </div>
+            `;
+
+            feed.prepend(postCard);
+            document.getElementById('new-post-caption').value = '';
+            document.getElementById('new-post-img').value = '';
+            togglePostCreator();
+        }
+
+        function toggleLike(btn) {
+            const card = btn.closest('.insta-card');
+            const countSpan = card.querySelector('.like-count');
+            let count = parseInt(countSpan.innerText);
+
+            if (!btn.classList.contains('liked')) {
+                btn.classList.add('liked');
+                countSpan.innerText = count + 1;
+            } else {
+                btn.classList.remove('liked');
+                countSpan.innerText = count - 1;
+            }
+        }
+
+        function handleInstaComment(event, containerId) {
+            if (event.key === 'Enter') {
+                const text = event.target.value.trim();
+                if (text) {
+                    appendComment(containerId, text);
+                    event.target.value = '';
+                }
+            }
+        }
+
+        function addInstaComment(containerId, btn) {
+            const input = btn.previousElementSibling;
+            const text = input.value.trim();
+            if (text) {
+                appendComment(containerId, text);
+                input.value = '';
+            }
+        }
+
+        function appendComment(containerId, text) {
+            const box = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.innerHTML = `<span style="font-weight:700;">${currentUser.name}:</span> ${text}`;
+            box.appendChild(div);
+        }
+
+        /* --- MESSAGING CENTER --- */
+        function switchChatChannel(channelKey, titleText) {
+            document.getElementById('chat-title').innerText = titleText;
+            document.querySelectorAll('.chat-channel-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const msgBox = document.getElementById('chat-messages-box');
+            msgBox.innerHTML = '';
+
+            if (channelKey === 'global') {
+                msgBox.innerHTML = `<div class="msg-bubble other"><div class="msg-author">Bro Admin</div>Welcome to overall chat!</div>`;
+            } else {
+                msgBox.innerHTML = `<div class="msg-bubble other"><div class="msg-author">${titleText.replace('🔒 ', '')}</div>Direct channel open.</div>`;
+            }
+        }
+
+        function handleChatSubmit(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-text-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const msgBox = document.getElementById('chat-messages-box');
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble me';
+            bubble.innerText = text;
+
+            msgBox.appendChild(bubble);
+            input.value = '';
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+
+        function logout() {
+            document.getElementById('main-console').classList.add('hidden');
+            document.getElementById('auth-flow').classList.remove('hidden');
+            resetAuthFlow();
+        }
+    </script>
+</body>
+</html>
